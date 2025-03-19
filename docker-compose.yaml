@@ -1,0 +1,42 @@
+version: "3.8"
+
+services:
+  mongo:
+    image: mongo:4.4
+    container_name: mongo
+    restart: always
+    ports:
+      - "27017:27017"
+
+  backend:
+    build: ./backend
+    container_name: backend
+    restart: always
+    ports:
+      - "5001:5001"
+    depends_on:
+      - mongo
+    environment:
+      - MONGO_URL=mongodb://mongo:27017/
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    restart: always
+    ports:
+      - "5000:5000"
+    depends_on:
+      - backend
+    environment:
+      - BACKEND_URL=http://backend:5001
+
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express
+    restart: always
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongo
+    ports:
+      - "8081:8081"
+    depends_on:
+      - mongo
